@@ -1,93 +1,38 @@
 
+import Grid from "./grid.js";
 
-const gridSize = 25; // Number of rows and columns
-const tileSize = 24; // Size of each square
-let grid = [];
-let numberOfLiveNeighbors = []
-run = false;
+let grid = new Grid(25, 25, 25);
 
-const canvas = document.getElementById('gridCanvas');
-const ctx = canvas.getContext('2d');
+grid.init();
+grid.initCanvas();
+
+let isRunning = false;
+let isDisplayingPattern = false;
 
 let lastTime = 0;
+
 let fps = 2; // Target frames per second
 let interval = 1000 / fps; // Time interval in milliseconds
 
-let pattern = [];
+document.getElementById("speedSlider").value = fps;
+document.getElementById('speedValue').innerHTML = fps
 
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-function initGrid() {
-  for (let row = 0; row < gridSize; row++) {
-    grid[row] = [];
-    numberOfLiveNeighbors[row] = []
-    for (let col = 0; col < gridSize; col++) {
-      grid[row][col] = 0;
-      numberOfLiveNeighbors[row][col] = 0
-    }
-  }
-}
-
-//-----------------------------------------------------------------------------
-
-function initCanvas() {
-
-  canvas.width = gridSize * tileSize;
-  canvas.height = gridSize * tileSize;
-
-  if (canvas.getContext) {
-    ctx.strokeStyle = 'lightgrey'
-
-    ctx.beginPath();
-    for (let row = 0; row <= gridSize; row++) {
-      ctx.moveTo(0, row * tileSize);
-      ctx.lineTo(gridSize * tileSize, row * tileSize);
-      ctx.fill();
-    }
-    for (let col = 0; col <= gridSize; col++) {
-      ctx.moveTo(col * tileSize, 0);
-      ctx.lineTo(col * tileSize, gridSize * tileSize);
-      ctx.fill();
-    }
-    ctx.stroke();
-
-    // red square
-    // const x = Math.floor(Math.random() * gridSize);
-    // const y = Math.floor(Math.random() * gridSize);
-    // ctx.fillStyle = 'red';
-    // ctx.fillRect( y*tileSize+1, x*tileSize+1, tileSize-2, tileSize-2 );
-  }
-}
-
-//-----------------------------------------------------------------------------
-
-function drawGrid() {
-  for (let row = 0; row < gridSize; row++) {
-    for (let col = 0; col < gridSize; col++) {
-      if (grid[row][col] == 0) {
-        ctx.fillStyle = 'white';
-      }
-      else {
-        ctx.fillStyle = 'black';
-      }
-      ctx.fillRect(row * tileSize + 1, col * tileSize + 1, tileSize - 2, tileSize - 2);
-    }
-  }
-}
-
+let currentPattern;
 
 //-----------------------------------------------------------------------------
 
 function step(timestamp) {
 
-  if (run) {
+  if (isRunning) {
     const deltaTime = timestamp - lastTime;
 
     if (deltaTime > interval) {
 
-      updateGrid();
+      grid.update();
+
+      if (isDisplayingPattern) {
+        grid.showPattern(lastCell[0], lastCell[1], currentPattern);
+      }
 
       // Update lastTime to current timestamp
       lastTime = timestamp - (deltaTime % interval);
@@ -100,220 +45,98 @@ function step(timestamp) {
 
 //-----------------------------------------------------------------------------
 
-function updateGrid() {
+// Mouse control
 
-  // Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-  // Any live cell with fewer than two live neighbours dies, as if by underpopulation.
-  // Any live cell with two or three live neighbours lives on to the next generation.
-  // Any live cell with more than three live neighbours dies, as if by overpopulation.
-
-  for (let row = 0; row < gridSize; row++) {
-    for (let col = 0; col < gridSize; col++) {
-      numberOfLiveNeighbors[row][col] = getLiveNeighbors(row, col);
-    }
-  }
-
-  for (let row = 0; row < gridSize; row++) {
-    for (let col = 0; col < gridSize; col++) {
-      // dead cell
-      if (grid[row][col] == 0) {
-        if (numberOfLiveNeighbors[row][col] == 3) {
-          grid[row][col] = 1;
-        }
-      }
-      // live cell
-      else {
-        if (numberOfLiveNeighbors[row][col] < 2) {
-          grid[row][col] = 0;
-        }
-        else if (numberOfLiveNeighbors[row][col] > 3) {
-          grid[row][col] = 0;
-        }
-      }
-
-      if (row == 0 && col == 3) {
-        console.log(numberOfLiveNeighbors[row][col] + " live neighbors");
-      }
-    }
-  }
-
-  drawGrid();
-
-  console.log('step');
-}
-
-const neighbors = [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]]
-
-function getLiveNeighbors(row, col) {
-
-  let liveNeighbors = 0;
-
-  for (let i = 0; i < 8; i++) {
-    let neighborRow = row + neighbors[i][0];
-    let neighborCol = col + neighbors[i][1];
-    if (neighborRow >= 0 && neighborRow < gridSize && neighborCol >= 0 && neighborCol < gridSize) {
-      liveNeighbors += grid[neighborRow][neighborCol];
-    }
-
-    if (row == 0 && col == 3) {
-      console.log("  Neighbor (" + neighborRow + "," + neighborCol + "),  " + liveNeighbors);
-    }
-  }
-
-  return liveNeighbors;
-}
-
-
-//-----------------------------------------------------------------------------
-
-
-function toggleTile(row, col) {
-
-  if (grid[row][col] == 0) {
-    ctx.fillStyle = 'black';
-    ctx.fillRect(row * tileSize + 1, col * tileSize + 1, tileSize - 2, tileSize - 2);
-    grid[row][col] = 1;
-  }
-  else {
-    ctx.fillStyle = 'white';
-    ctx.fillRect(row * tileSize + 1, col * tileSize + 1, tileSize - 2, tileSize - 2);
-    grid[row][col] = 0;
-  }
-
-  console.log("(" + row + "," + col + ") -> " + grid[row][col]);
-}
-
-//-----------------------------------------------------------------------------
-
-function showPattern(mouseRow, mouseCol) {
-
-  const width = pattern[0].length
-  const height = pattern.length
-  const halfWidth = parseInt(width / 2);
-  const halfHeight = parseInt(height / 2);
-
-  for (let i = 0; i < width; i++) {
-    for (let j = 0; j < height; j++) {
-      if (pattern[j][i]) {
-        let row = mouseRow - halfWidth + i;
-        let col = mouseCol - halfHeight + j;
-        ctx.fillStyle = 'grey';
-        ctx.fillRect(row * tileSize + 1, col * tileSize + 1, tileSize - 2, tileSize - 2);
-      }
-    }
-  }
-}
-
-function addPatterun(mouseRow, mouseCol) {
-
-  const width = pattern[0].length
-  const height = pattern.length
-  const halfWidth = parseInt(width / 2);
-  const halfHeight = parseInt(height / 2);
-
-  for (let i = 0; i < width; i++) {
-    for (let j = 0; j < height; j++) {
-      if (pattern[j][i]) {
-        let row = mouseRow - halfWidth + i;
-        let col = mouseCol - halfHeight + j;
-        ctx.fillStyle = 'black';
-        ctx.fillRect(row * tileSize + 1, col * tileSize + 1, tileSize - 2, tileSize - 2);
-        grid[row][col] = 1;
-      }
-    }
-  }
-}
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-//-----------------------------------------------------------------------------
-
-initGrid();
-initCanvas();
-
-document.getElementById("speedSlider").value = fps;
-document.getElementById('speedValue').innerHTML = fps
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-
-const offsetX = gridCanvas.offsetLeft;
-const offsetY = gridCanvas.offsetTop;
-// let isMouseDown = false;
-let lastRow, lastCol
-
-const Mode = {
+const MouseState = {
   toggleMouseUp: 0,
   toggleMouseDown: 1,
-  placePattern: 2
+  showPattern: 2
 };
-let mode = Mode.toggleMouseUp;
+
+let mouseState = MouseState.toggleMouseUp;
+
+let lastCell = [];
+
+function getCellUnderMouse(e) {
+  const cell = [];
+  cell[0] = parseInt((e.layerX - gridCanvas.offsetLeft) / grid.cellSize);
+  cell[1] = parseInt((e.layerY - gridCanvas.offsetTop) / grid.cellSize);
+  return cell;
+}
 
 gridCanvas.onmouseup = function (e) {
-  if (mode == Mode.toggleMouseDown) {
-     mode = Mode.toggleMouseUp;
+
+  if (mouseState == MouseState.toggleMouseDown) {
+    mouseState = MouseState.toggleMouseUp;
   }
+
 };
 
 gridCanvas.onmousedown = function (e) {
-  console.log(mode);
-  if (mode == Mode.toggleMouseUp) {
-    lastRow = parseInt((e.layerX - offsetX) / tileSize);
-    lastCol = parseInt((e.layerY - offsetY) / tileSize);
-    toggleTile(lastRow, lastCol);
-    //isMouseDown = true;
-    mode = Mode.toggleMouseDown;
+
+  //console.log("down: " + mouseState + " " + lastCell);
+
+  if (mouseState == MouseState.toggleMouseUp) {
+    const cell = getCellUnderMouse(e);
+    grid.toggleCell(cell[0], cell[1]);
+    mouseState = MouseState.toggleMouseDown;
+    lastCell = cell;
   }
-  console.log(mode);
+
+  //console.log("down: " + mouseState + " " + lastCell);
+
 };
 
 gridCanvas.onmousemove = function (e) {
-  console.log(mode);
 
-  if (mode == Mode.toggleMouseDown) {
-    let row = parseInt((e.layerX - offsetX) / tileSize);
-    let col = parseInt((e.layerY - offsetY) / tileSize);
-    console.log("moved to (" + row + "," + col + ")");
+  //console.log(mouseState);
 
-    if ((row != lastRow) || (col != lastCol)) {
-      toggleTile(row, col);
-      lastRow = row;
-      lastCol = col;
-      console.log("moved to (" + row + "," + col + ")");
+  if (mouseState == MouseState.toggleMouseDown) {
+    const cell = getCellUnderMouse(e);
+
+    if (cell[0] != lastCell[0] || cell[1] != lastCell[1]) {
+      grid.toggleCell(cell[0], cell[1]);
+      lastCell = cell;
+      //console.log("move: (" + lastCell + ") -> (" + cell + ")");
     }
   }
-  else if (mode == Mode.placePattern) {
-    let row = parseInt((e.layerX - offsetX) / tileSize);
-    let col = parseInt((e.layerY - offsetY) / tileSize);
-    drawGrid();
-    showPattern(row, col);
+  else if (mouseState == MouseState.showPattern) {
+    const cell = getCellUnderMouse(e);
+
+    if (cell[0] != lastCell[0] || cell[1] != lastCell[1]) {
+      grid.showPattern(cell[0], cell[1], currentPattern);
+      lastCell = cell;
+    }
   }
 };
 
-// gridCanvas.onmouseover = function(e) {
-// };
+gridCanvas.onmouseover = function (e) {
+  if (mouseState == MouseState.showPattern) {
+    isDisplayingPattern = true;
+    const cell = getCellUnderMouse(e);
+    grid.showPattern(cell[0], cell[1], currentPattern);
+  }
+};
 
 gridCanvas.onmouseout = function (e) {
-  if( mode == Mode.toggleMouseDown ) {
-    mode = Mode.toggleMouseUp;
+
+  if (mouseState == MouseState.toggleMouseDown) {
+    mouseState = MouseState.toggleMouseUp;
   }
+  if (mouseState == MouseState.showPattern) {
+    isDisplayingPattern = false;
+  }
+  grid.draw();
+
 };
 
 gridCanvas.onclick = function (e) {
-  if (mode == Mode.placePattern) {
-    let mouseRow = parseInt((e.layerX - offsetX) / tileSize);
-    let mouseCol = parseInt((e.layerY - offsetY) / tileSize);
-    addPatterun(mouseRow, mouseCol);
+
+  if (mouseState == MouseState.showPattern) {
+    const cell = getCellUnderMouse(e);
+    grid.placePatternOnGrid(cell[0], cell[1], currentPattern);
   }
+
 };
 
 //gridCanvas.ondbclick = function(e) {
@@ -321,43 +144,79 @@ gridCanvas.onclick = function (e) {
 //  console.log(e);
 //};
 
+//-----------------------------------------------------------------------------
 
-function runButton() {
-  run = !run;
-  if (run) {
+// Buttons and other controls
+
+const runButton = document.getElementById('runButton');
+runButton.addEventListener('click', () => {
+  isRunning = !isRunning;
+  if (isRunning) {
     document.getElementById("runButton").innerHTML = "Stop"
+    requestAnimationFrame(step);
   }
   else {
     document.getElementById("runButton").innerHTML = "Run"
   }
-  requestAnimationFrame(step);
-}
+});
 
-function stepButton() {
-  updateGrid();
-}
+const stepButton = document.getElementById('stepButton');
+stepButton.addEventListener('click', () => {
+  grid.update();
+});
 
-function clearButton() {
-  initGrid();
-  drawGrid();
-}
+const clearButton = document.getElementById('clearButton');
+clearButton.addEventListener('click', () => {
+  grid.reset();
+});
 
 speedSlider.oninput = function () {
   fps = document.getElementById("speedSlider").value;
   interval = 1000 / fps;
   document.getElementById('speedValue').innerHTML = fps;
-  console.log("fps: " + fps);
+  //console.log("fps: " + fps);
 }
 
-function patternButton() {
-  if( mode == Mode.placePattern ) {
-    mode = Mode.toggleMouseUp;
+const Patterns = {
+  glider: [[0, 1, 0], [0, 0, 1], [1, 1, 1]],
+  lwss: [[0, 0, 1, 1, 0], [1, 1, 0, 1, 1], [1, 1, 1, 1, 0], [0, 1, 1, 0, 0]], // Light-weight spaceship
+  mwss: [[0, 1, 1, 1, 0, 0], [1, 1, 1, 1, 1, 0], [1, 1, 1, 0, 1, 1], [0, 0, 0, 1, 1, 0]], // Medium-weight spaceship
+  hwss: [[0, 1, 1, 1, 1, 0, 0], [1, 1, 1, 1, 1, 1, 0], [1, 1, 1, 1, 0, 1, 1], [0, 0, 0, 0, 1, 1, 0]] // Heavy-weight spaceship
+};
+
+function patternButtonPressed() {
+  if (mouseState == MouseState.showPattern) {
+    mouseState = MouseState.toggleMouseUp;
+    isDisplayingPattern = false;
   }
   else {
-   pattern = [[0, 1, 0],
-              [0, 0, 1],
-              [1, 1, 1]];
-    mode = Mode.placePattern;
+    mouseState = MouseState.showPattern;
+    isDisplayingPattern = true;
   }
-  drawGrid();
-}
+
+  grid.draw();
+};
+
+const pattern1Button = document.getElementById('pattern1Button');
+pattern1Button.addEventListener('click', () => {
+  patternButtonPressed();
+  currentPattern = Patterns.glider;
+});
+
+const pattern2Button = document.getElementById('pattern2Button');
+pattern2Button.addEventListener('click', () => {
+  patternButtonPressed();
+  currentPattern = Patterns.lwss;
+});
+
+const pattern3Button = document.getElementById('pattern3Button');
+pattern3Button.addEventListener('click', () => {
+  patternButtonPressed();
+  currentPattern = Patterns.mwss;
+});
+
+const pattern4Button = document.getElementById('pattern4Button');
+pattern4Button.addEventListener('click', () => {
+  patternButtonPressed();
+  currentPattern = Patterns.hwss;
+});

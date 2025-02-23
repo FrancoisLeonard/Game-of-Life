@@ -13,20 +13,23 @@
 
 <canvas id="gridCanvas"></canvas>
 
-<button id="runButton" type="button" onclick="runButton()">Run</button>
+<button id="runButton" type="button">Run</button>
 
-<button id="stepButton" type="button" onclick="stepButton()">Step</button>
+<button id="stepButton" type="button">Step</button>
 
-<button id="clearButton" type="button" onclick="clearButton()">Clear</button>
+<button id="clearButton" type="button" >Clear</button>
 
 <input type="range" id="speedSlider" name="speed" min="1" max="10" value="1" step="1"/>
 <label for="speedSlider">Speed: </label><output id="speedValue"></output>
 
-<button id="patternButton" type="button" onclick="patternButton()">Place Pattern</button>
+<button id="pattern1Button" type="button">Place Pattern</button>
+<button id="pattern2Button" type="button">Place Pattern</button>
+<button id="pattern3Button" type="button">Place Pattern</button>
+<button id="pattern4Button" type="button">Place Pattern</button>
 
 
-
-<script src="gol.js"></script> 
+<script type="module" src="grid.js"></script> 
+<script type="module" src="gol.js"></script> 
 
 
 
