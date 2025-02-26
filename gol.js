@@ -11,7 +11,7 @@ let isDisplayingPattern = false;
 
 let lastTime = 0;
 
-let fps = 2; // Target frames per second
+let fps = 4; // Target frames per second
 let interval = 1000 / fps; // Time interval in milliseconds
 
 document.getElementById("speedSlider").value = fps;
@@ -187,11 +187,9 @@ const Patterns = {
 function patternButtonPressed() {
   if (mouseState == MouseState.showPattern) {
     mouseState = MouseState.toggleMouseUp;
-    isDisplayingPattern = false;
   }
   else {
     mouseState = MouseState.showPattern;
-    isDisplayingPattern = true;
   }
 
   grid.draw();
@@ -220,3 +218,51 @@ pattern4Button.addEventListener('click', () => {
   patternButtonPressed();
   currentPattern = Patterns.hwss;
 });
+
+const rotatePatternRight = document.getElementById('rotatePatternRight');
+rotatePatternRight.addEventListener('click', () => {
+
+  if (mouseState == MouseState.showPattern) {
+    const w = currentPattern.length;
+    const h = currentPattern[0].length;
+
+    console.log("rotate " + w + ", " + h);
+
+    let newPattern = [];
+    for (let i = 0; i < h; i++) {
+      newPattern[i] = [];
+    }
+
+    for (let i = 0; i < w; i++) {
+      for (let j = 0; j < h; j++) {
+        console.log(i + "," + j);
+        newPattern[j][i] = currentPattern[w - 1 - i][j];
+      }
+    }
+    currentPattern = newPattern;
+  }
+});
+
+const rotatePatternLeft = document.getElementById('rotatePatternLeft');
+rotatePatternLeft.addEventListener('click', () => {
+  if (mouseState == MouseState.showPattern) {
+    const w = currentPattern.length;
+    const h = currentPattern[0].length;
+
+    console.log("rotate " + w + ", " + h);
+
+    let newPattern = [];
+    for (let i = 0; i < h; i++) {
+      newPattern[i] = [];
+    }
+
+    for (let i = 0; i < w; i++) {
+      for (let j = 0; j < h; j++) {
+        console.log(i + "," + j);
+        newPattern[j][i] = currentPattern[i][h - 1 - j];
+      }
+    }
+    currentPattern = newPattern;
+  }
+});
+
