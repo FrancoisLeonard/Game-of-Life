@@ -1,23 +1,23 @@
+import { Grid } from "./grid.js";
+import { Patterns } from "./patterns.js";
 
-import Grid from "./grid.js";
+const cellSize = 16;
+const canvasCollumns = parseInt((1280) / cellSize);
+const canvasRows = 48;
 
-let grid = new Grid(25, 25, 25);
-
-grid.init();
-grid.initCanvas();
+let grid = new Grid(canvasCollumns, canvasRows, cellSize);
 
 let isRunning = false;
 let isDisplayingPattern = false;
 
 let lastTime = 0;
-
 let fps = 4; // Target frames per second
 let interval = 1000 / fps; // Time interval in milliseconds
 
 document.getElementById("speedSlider").value = fps;
 document.getElementById('speedValue').innerHTML = fps
 
-let currentPattern;
+let selectedPattern;
 
 //-----------------------------------------------------------------------------
 
@@ -31,14 +31,12 @@ function step(timestamp) {
       grid.update();
 
       if (isDisplayingPattern) {
-        grid.showPattern(lastCell[0], lastCell[1], currentPattern);
+        grid.showPattern(lastCell[0], lastCell[1], selectedPattern);
       }
 
-      // Update lastTime to current timestamp
       lastTime = timestamp - (deltaTime % interval);
     }
 
-    // Call the gameLoop again on the next frame
     requestAnimationFrame(step);
   }
 }
@@ -65,46 +63,34 @@ function getCellUnderMouse(e) {
 }
 
 gridCanvas.onmouseup = function (e) {
-
   if (mouseState == MouseState.toggleMouseDown) {
     mouseState = MouseState.toggleMouseUp;
   }
-
 };
 
 gridCanvas.onmousedown = function (e) {
-
-  //console.log("down: " + mouseState + " " + lastCell);
-
   if (mouseState == MouseState.toggleMouseUp) {
+    mouseState = MouseState.toggleMouseDown;
     const cell = getCellUnderMouse(e);
     grid.toggleCell(cell[0], cell[1]);
-    mouseState = MouseState.toggleMouseDown;
     lastCell = cell;
   }
-
-  //console.log("down: " + mouseState + " " + lastCell);
-
 };
 
 gridCanvas.onmousemove = function (e) {
-
-  //console.log(mouseState);
-
   if (mouseState == MouseState.toggleMouseDown) {
     const cell = getCellUnderMouse(e);
 
     if (cell[0] != lastCell[0] || cell[1] != lastCell[1]) {
       grid.toggleCell(cell[0], cell[1]);
       lastCell = cell;
-      //console.log("move: (" + lastCell + ") -> (" + cell + ")");
     }
   }
   else if (mouseState == MouseState.showPattern) {
     const cell = getCellUnderMouse(e);
 
     if (cell[0] != lastCell[0] || cell[1] != lastCell[1]) {
-      grid.showPattern(cell[0], cell[1], currentPattern);
+      grid.showPattern(cell[0], cell[1], selectedPattern);
       lastCell = cell;
     }
   }
@@ -114,39 +100,31 @@ gridCanvas.onmouseover = function (e) {
   if (mouseState == MouseState.showPattern) {
     isDisplayingPattern = true;
     const cell = getCellUnderMouse(e);
-    grid.showPattern(cell[0], cell[1], currentPattern);
+    grid.showPattern(cell[0], cell[1], selectedPattern);
   }
 };
 
 gridCanvas.onmouseout = function (e) {
-
   if (mouseState == MouseState.toggleMouseDown) {
     mouseState = MouseState.toggleMouseUp;
   }
   if (mouseState == MouseState.showPattern) {
-    isDisplayingPattern = false;
+    // prevent the pattern highlight to remain on the grid on the last mouse position
+    isDisplayingPattern = false; 
+    grid.draw();
   }
-  grid.draw();
-
 };
 
 gridCanvas.onclick = function (e) {
-
   if (mouseState == MouseState.showPattern) {
     const cell = getCellUnderMouse(e);
-    grid.placePatternOnGrid(cell[0], cell[1], currentPattern);
+    grid.placePatternOnGrid(cell[0], cell[1], selectedPattern);
   }
-
 };
-
-//gridCanvas.ondbclick = function(e) {
-//  console.log('ondbclick');
-//  console.log(e);
-//};
 
 //-----------------------------------------------------------------------------
 
-// Buttons and other controls
+// Control Inputs
 
 const runButton = document.getElementById('runButton');
 runButton.addEventListener('click', () => {
@@ -174,57 +152,150 @@ speedSlider.oninput = function () {
   fps = document.getElementById("speedSlider").value;
   interval = 1000 / fps;
   document.getElementById('speedValue').innerHTML = fps;
-  //console.log("fps: " + fps);
 }
 
-const Patterns = {
-  glider: [[0, 1, 0], [0, 0, 1], [1, 1, 1]],
-  lwss: [[0, 0, 1, 1, 0], [1, 1, 0, 1, 1], [1, 1, 1, 1, 0], [0, 1, 1, 0, 0]], // Light-weight spaceship
-  mwss: [[0, 1, 1, 1, 0, 0], [1, 1, 1, 1, 1, 0], [1, 1, 1, 0, 1, 1], [0, 0, 0, 1, 1, 0]], // Medium-weight spaceship
-  hwss: [[0, 1, 1, 1, 1, 0, 0], [1, 1, 1, 1, 1, 1, 0], [1, 1, 1, 1, 0, 1, 1], [0, 0, 0, 0, 1, 1, 0]] // Heavy-weight spaceship
-};
+var patternsSelect = document.getElementById('patternsSelect');
+patternsSelect.value = "default";
 
-function patternButtonPressed() {
+// Cursor Button
+
+const cursorButton = document.getElementById('cursorButton');
+cursorButton.addEventListener('click', () => {
+  mouseState = MouseState.toggleMouseUp;
+  patternsSelect.value = "default";
+});
+
+// Pattern Select
+
+const sel0 = document.getElementById('sel0');
+sel0.addEventListener('click', () => {
+  mouseState = MouseState.toggleMouseUp;
+  patternsSelect.value = "default";
+});
+
+const sp1 = document.getElementById('sp1');
+sp1.addEventListener('click', () => {
+  mouseState = MouseState.showPattern;;
+  selectedPattern = Patterns.glider;
+});
+
+const sp2 = document.getElementById('sp2');
+sp2.addEventListener('click', () => {
+  mouseState = MouseState.showPattern;
+  selectedPattern = Patterns.lwss;
+});
+
+const sp4 = document.getElementById('sp4');
+sp4.addEventListener('click', () => {
+  mouseState = MouseState.showPattern;
+  selectedPattern = Patterns.hwss;
+});
+
+
+const puf1 = document.getElementById('puf1');
+puf1.addEventListener('click', () => {
+  mouseState = MouseState.showPattern;;
+  selectedPattern = Patterns.puffer1;
+});
+
+const puf2 = document.getElementById('puf2');
+puf2.addEventListener('click', () => {
+  mouseState = MouseState.showPattern;;
+  selectedPattern = Patterns.puffer2;
+});
+
+
+const osc1 = document.getElementById('osc1');
+osc1.addEventListener('click', () => {
+  mouseState = MouseState.showPattern;;
+  selectedPattern = Patterns.blinker;
+});
+
+const osc2 = document.getElementById('osc2');
+osc2.addEventListener('click', () => {
+  mouseState = MouseState.showPattern;;
+  selectedPattern = Patterns.pentadecathlon;
+});
+
+const osc3 = document.getElementById('osc3');
+osc3.addEventListener('click', () => {
+  mouseState = MouseState.showPattern;;
+  selectedPattern = Patterns.pentadecathlon_synthesis;
+});
+
+const osc4 = document.getElementById('osc4');
+osc4.addEventListener('click', () => {
+  mouseState = MouseState.showPattern;;
+  selectedPattern = Patterns.pulsar;
+});
+
+const osc5 = document.getElementById('osc5');
+osc5.addEventListener('click', () => {
+  mouseState = MouseState.showPattern;;
+  selectedPattern = Patterns.pre_pulsar;
+});
+
+const osc6 = document.getElementById('osc6');
+osc6.addEventListener('click', () => {
+  mouseState = MouseState.showPattern;;
+  selectedPattern = Patterns.galaxy;
+});
+
+const osc7 = document.getElementById('osc7');
+osc7.addEventListener('click', () => {
+  mouseState = MouseState.showPattern;;
+  selectedPattern = Patterns.clock;
+});
+
+
+const mtsl1 = document.getElementById('mtsl1');
+mtsl1.addEventListener('click', () => {
+  mouseState = MouseState.showPattern;;
+  selectedPattern = Patterns.acorn;
+});
+
+const mtsl2 = document.getElementById('mtsl2');
+mtsl2.addEventListener('click', () => {
+  mouseState = MouseState.showPattern;;
+  selectedPattern = Patterns.pi_heptomino;
+});
+
+const other1 = document.getElementById('other1');
+other1.addEventListener('click', () => {
+  mouseState = MouseState.showPattern;;
+  selectedPattern = Patterns.line;
+});
+
+// Rotation Buttons
+
+const rotatePatternLeft = document.getElementById('rotateLeftBtn');
+rotatePatternLeft.addEventListener('click', () => {
   if (mouseState == MouseState.showPattern) {
-    mouseState = MouseState.toggleMouseUp;
+    const w = selectedPattern.length;
+    const h = selectedPattern[0].length;
+
+    console.log("rotate " + w + ", " + h);
+
+    let newPattern = [];
+    for (let i = 0; i < h; i++) {
+      newPattern[i] = [];
+    }
+
+    for (let i = 0; i < w; i++) {
+      for (let j = 0; j < h; j++) {
+        newPattern[j][i] = selectedPattern[i][h - 1 - j];
+      }
+    }
+    selectedPattern = newPattern;
   }
-  else {
-    mouseState = MouseState.showPattern;
-  }
-
-  grid.draw();
-};
-
-const pattern1Button = document.getElementById('pattern1Button');
-pattern1Button.addEventListener('click', () => {
-  patternButtonPressed();
-  currentPattern = Patterns.glider;
 });
 
-const pattern2Button = document.getElementById('pattern2Button');
-pattern2Button.addEventListener('click', () => {
-  patternButtonPressed();
-  currentPattern = Patterns.lwss;
-});
-
-const pattern3Button = document.getElementById('pattern3Button');
-pattern3Button.addEventListener('click', () => {
-  patternButtonPressed();
-  currentPattern = Patterns.mwss;
-});
-
-const pattern4Button = document.getElementById('pattern4Button');
-pattern4Button.addEventListener('click', () => {
-  patternButtonPressed();
-  currentPattern = Patterns.hwss;
-});
-
-const rotatePatternRight = document.getElementById('rotatePatternRight');
+const rotatePatternRight = document.getElementById('rotateRightBtn');
 rotatePatternRight.addEventListener('click', () => {
 
   if (mouseState == MouseState.showPattern) {
-    const w = currentPattern.length;
-    const h = currentPattern[0].length;
+    const w = selectedPattern.length;
+    const h = selectedPattern[0].length;
 
     console.log("rotate " + w + ", " + h);
 
@@ -235,34 +306,22 @@ rotatePatternRight.addEventListener('click', () => {
 
     for (let i = 0; i < w; i++) {
       for (let j = 0; j < h; j++) {
-        console.log(i + "," + j);
-        newPattern[j][i] = currentPattern[w - 1 - i][j];
+        newPattern[j][i] = selectedPattern[w - 1 - i][j];
       }
     }
-    currentPattern = newPattern;
+    selectedPattern = newPattern;
   }
 });
 
-const rotatePatternLeft = document.getElementById('rotatePatternLeft');
-rotatePatternLeft.addEventListener('click', () => {
-  if (mouseState == MouseState.showPattern) {
-    const w = currentPattern.length;
-    const h = currentPattern[0].length;
 
-    console.log("rotate " + w + ", " + h);
+// Resize buttons
 
-    let newPattern = [];
-    for (let i = 0; i < h; i++) {
-      newPattern[i] = [];
-    }
-
-    for (let i = 0; i < w; i++) {
-      for (let j = 0; j < h; j++) {
-        console.log(i + "," + j);
-        newPattern[j][i] = currentPattern[i][h - 1 - j];
-      }
-    }
-    currentPattern = newPattern;
-  }
+const plusBtn = document.getElementById('plusBtn');
+plusBtn.addEventListener('click', () => {
+  grid.scale(2);
 });
 
+const minusBtn = document.getElementById('minusBtn');
+minusBtn.addEventListener('click', () => {
+  grid.scale(0.5);
+});

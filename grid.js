@@ -1,10 +1,11 @@
-class Grid {
 
-  static dead = 0;
-  static alive = 1;
-  static highlight = 2;
+const Cell = {
+  dead: 0,
+  alive: 1,
+  highlight: 2
+}
 
-  //-----------------------------------------------------------------------------
+export class Grid {
 
   constructor(width, height, cellSize) {
 
@@ -20,6 +21,8 @@ class Grid {
 
     this.init();
     this.initCanvas();
+
+    this.isPeriodic = true;
   }
 
   //-----------------------------------------------------------------------------
@@ -32,7 +35,7 @@ class Grid {
       this.liveNeibhbors[row] = [];
 
       for (let col = 0; col < this.height; col++) {
-        this.grid[row][col] = Grid.dead;
+        this.grid[row][col] = Cell.dead;
         this.liveNeibhbors[row][col] = 0;
       }
     }
@@ -44,7 +47,7 @@ class Grid {
 
     for (let row = 0; row < this.width; row++) {
       for (let col = 0; col < this.height; col++) {
-        this.grid[row][col] = Grid.dead;
+        this.grid[row][col] = Cell.dead;
       }
     }
 
@@ -55,6 +58,8 @@ class Grid {
 
   initCanvas() {
 
+    // draw the grid lines
+
     this.canvas.width = this.width * this.cellSize;
     this.canvas.height = this.height * this.cellSize;
 
@@ -63,13 +68,13 @@ class Grid {
 
       this.ctx.beginPath();
 
-      for (let row = 0; row <= this.width; row++) {
+      for (let row = 0; row <= this.height; row++) {
         this.ctx.moveTo(0, row * this.cellSize);
         this.ctx.lineTo(this.width * this.cellSize, row * this.cellSize);
         this.ctx.fill();
       }
 
-      for (let col = 0; col <= this.height; col++) {
+      for (let col = 0; col <= this.width; col++) {
         this.ctx.moveTo(col * this.cellSize, 0);
         this.ctx.lineTo(col * this.cellSize, this.height * this.cellSize);
         this.ctx.fill();
@@ -83,13 +88,13 @@ class Grid {
 
   drawCell(row, col, cellState) {
 
-    if (cellState == Grid.dead) {
+    if (cellState == Cell.dead) {
       this.ctx.fillStyle = 'white';
     }
-    else if (cellState == Grid.alive) {
+    else if (cellState == Cell.alive) {
       this.ctx.fillStyle = 'black';
     }
-    else if (cellState == Grid.highlight) {
+    else if (cellState == Cell.highlight) {
       this.ctx.fillStyle = "rgba(65, 65, 65, 0.5)";
     }
 
@@ -108,6 +113,29 @@ class Grid {
 
   //-----------------------------------------------------------------------------
 
+  mod(n, m) {
+    // supports mod of negative numbers
+    if (n < 0) return ((n % m) + m) % m;
+    else return n % m;
+  }
+
+  //-----------------------------------------------------------------------------
+
+  checkForBorders(cell) {
+    if (this.isPeriodic) {
+      cell[0] = this.mod(cell[0], this.width);
+      cell[1] = this.mod(cell[1], this.height);
+    }
+    else {
+      if (cell[0] < 0 || cell[0] >= this.width || cell[1] < 0 || cell[1] >= this.height) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  //-----------------------------------------------------------------------------
+
   static neighborIndices = [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]];
 
   getLiveNeighborCount(row, col) {
@@ -116,11 +144,12 @@ class Grid {
 
     for (let i = 0; i < 8; i++) {
 
-      let neighborRow = row + Grid.neighborIndices[i][0];
-      let neighborCol = col + Grid.neighborIndices[i][1];
+      let NeighborCell = [];
+      NeighborCell[0] = row + Grid.neighborIndices[i][0];
+      NeighborCell[1] = col + Grid.neighborIndices[i][1];
 
-      if (neighborRow >= 0 && neighborRow < this.width && neighborCol >= 0 && neighborCol < this.height) {
-        if (this.grid[neighborRow][neighborCol] == Grid.alive) {
+      if (this.checkForBorders(NeighborCell)) {
+        if (this.grid[NeighborCell[0]][NeighborCell[1]] == Cell.alive) {
           liveNeighbors += 1;
         }
       }
@@ -148,20 +177,18 @@ class Grid {
     for (let row = 0; row < this.width; row++) {
       for (let col = 0; col < this.height; col++) {
         // dead cell
-        if (this.grid[row][col] == Grid.dead) {
+        if (this.grid[row][col] == Cell.dead) {
           if (this.liveNeibhbors[row][col] == 3) {
-            this.grid[row][col] = Grid.alive;
+            this.grid[row][col] = Cell.alive;
           }
         }
         // live cell
         else {
-          //console.log(" "+this.liveNeibhbors[row][col]+" nb,   " + this.liveNeibhbors );
-
           if (this.liveNeibhbors[row][col] < 2) {
-            this.grid[row][col] = Grid.dead;
+            this.grid[row][col] = Cell.dead;
           }
           else if (this.liveNeibhbors[row][col] > 3) {
-            this.grid[row][col] = Grid.dead;
+            this.grid[row][col] = Cell.dead;
           }
         }
       }
@@ -174,35 +201,36 @@ class Grid {
 
   toggleCell(row, col) {
 
-    if (this.grid[row][col] == Grid.dead) {
-      this.grid[row][col] = Grid.alive;
+    if (this.grid[row][col] == Cell.dead) {
+      this.grid[row][col] = Cell.alive;
     }
     else {
-      this.grid[row][col] = Grid.dead;
+      this.grid[row][col] = Cell.dead;
     }
 
     this.drawCell(row, col, this.grid[row][col]);
-
-    console.log("(" + row + "," + col + ") -> " + this.grid[row][col]);
   }
 
   //-----------------------------------------------------------------------------
 
   showPattern(mouseRow, mouseCol, pattern) {
- 
+
     const width = pattern[0].length;
     const height = pattern.length;
     const halfWidth = parseInt(width / 2);
     const halfHeight = parseInt(height / 2);
 
-    this.draw();
+    this.draw(); // remove the last mouse position pattern
 
     for (let i = 0; i < width; i++) {
       for (let j = 0; j < height; j++) {
         if (pattern[j][i]) {
-          let row = mouseRow - halfWidth + i;
-          let col = mouseCol - halfHeight + j;
-          this.drawCell( row, col, Grid.highlight );
+          let cell = [];
+          cell[0] = mouseRow - halfWidth + i;
+          cell[1] = mouseCol - halfHeight + j;
+          if (this.checkForBorders(cell)) {
+            this.drawCell(cell[0], cell[1], Cell.highlight);
+          }
         }
       }
     }
@@ -220,10 +248,13 @@ class Grid {
     for (let i = 0; i < width; i++) {
       for (let j = 0; j < height; j++) {
         if (pattern[j][i]) {
-          let row = mouseRow - halfWidth + i;
-          let col = mouseCol - halfHeight + j;
-          this.drawCell( row, col, Grid.alive );
-          this.grid[row][col] = 1;
+          let cell = [];
+          cell[0] = mouseRow - halfWidth + i;
+          cell[1] = mouseCol - halfHeight + j;
+          if (this.checkForBorders(cell)) {
+            this.drawCell(cell[0], cell[1], Cell.alive);
+            this.grid[cell[0]][cell[1]] = 1;
+          }
         }
       }
     }
@@ -231,6 +262,48 @@ class Grid {
 
   //-----------------------------------------------------------------------------
 
-}
+  scale(factor) {
 
-export default Grid;
+    const newCellSize = parseInt(this.cellSize / factor);
+
+    if (newCellSize > 2 && newCellSize < 128) {
+
+      const oldGrid = this.grid.slice();
+      const oldWidth = this.width;
+      const oldHeight = this.height;
+
+      this.cellSize = newCellSize;
+      this.width = parseInt(this.width * factor);
+      this.height = parseInt(this.height * factor);
+
+      this.grid = [];
+      this.liveNeibhbors = [];
+
+      this.init();
+      this.initCanvas();
+
+      const offsetCols = parseInt((this.width - oldWidth) / 2);
+      const offsetRows = parseInt((this.height - oldHeight) / 2);
+
+      if (factor > 1) {
+        for (let row = 0; row < oldHeight; row++) {
+          for (let col = 0; col < oldWidth; col++) {
+            this.grid[col + offsetCols][row + offsetRows] = oldGrid[col][row];
+          }
+        }
+      }
+      else {
+        for (let row = 0; row < this.height; row++) {
+          for (let col = 0; col < this.width; col++) {
+            this.grid[col][row] = oldGrid[col - offsetCols][row - offsetRows];
+          }
+        }
+      }
+
+      this.draw();
+    }
+  }
+
+  //-----------------------------------------------------------------------------
+
+}

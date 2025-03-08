@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="style.css">
+
+    <title>Conway's Game of Life</title>
+</head>
+
+<body>
+    <div id="parentDiv">
+
+        <div id="titleDiv">
+            <h1 id="title">Game of Life!</h1>
+        </div>
+
+        <div id="gridDiv">
+            <canvas id="gridCanvas"></canvas>
+        </div>
+
+        <div id="inputsDiv">
+            <div id="inputsInnerDiv">
+
+                <button id="runButton" class="textBtn" type="button">Run</button>
+                <button id="stepButton" class="textBtn" type="button">Step</button>
+                <button id="clearButton" class="textBtn" type="button">Clear</button>
+                <div id="sliderDiv">
+                    <div id="sliderTexDiv">
+                        <p id="speedText">Speed: </p> <output id="speedValue"></output>
+                    </div>
+                    <input id="speedSlider" type="range" min="1" max="10" value="1" step="1" />
+                </div>
+
+                <button id="cursorButton" class="iconBtn" type="button"><img class="img" src="assets/cursor.png"
+                        alt="Cursor" /></button>
+
+                <select id="patternsSelect" class="selects">
+                    <option value="default" id="sel0" selected="selected">Patterns</option>
+
+                    <optgroup id="sp0" label="Spaceships">
+                        <option value="" id="sp1">Glider</option>
+                        <option value="" id="sp2">Light Weight Spaceship</option>
+                        <option value="" id="sp4">Heavy Weight Spaceship</option>
+
+                    <optgroup value="" id="puf0" label="Puffers">
+                        <option value="" id="puf1">Puffer 1</option>
+                        <option value="" id="puf2">Puffer 2</option>
+
+                    <optgroup id="osc0" label="Oscillators">
+                        <option value="" id="osc1">Blinker</option>
+                        <option value="" id="osc2">Pentadecathlon</option>
+                        <option value="" id="osc3">Pentadecathlon Synthesis</option>
+                        <option value="" id="osc4">Pulsar</option>
+                        <option value="" id="osc5">Pre-Pulsar</option>
+                        <option value="" id="osc6">Kok's Galaxy</option>
+                        <option value="" id="osc7">Clock</option>
+
+                    <optgroup value="" id="mtsl0" label="Methuselahs">
+                        <option value="" id="mtsl1">Acorn</option>
+                        <option value="" id="mtsl2">Pi-Heptomino</option>
+
+                    <optgroup value="" id="other0" label="Other">
+                        <option value="" id="other1">Line</option>
+                </select>
+
+                <button id="rotateLeftBtn" class="iconBtn" type="button"><img class="image" src="assets/rotate-left.png"
+                        alt="Rotate Left"></button>
+                <button id="rotateRightBtn" class="iconBtn" type="button"><img class="image" src="assets/rotate-right.png"
+                        alt="Rotate Right"></button>
+
+                <button id="plusBtn" class="iconBtn" type="button"><img class="image" src="assets/plus.png"
+                        alt="Enlarge"></button>
+                <button id="minusBtn" class="iconBtn" type="button"><img class="image" src="assets/minus.png"
+                        alt="Shrink"></button>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+<script type="module" src="grid.js"></script>
+<script type="module" src="gol.js"></script>
+
+</html>
