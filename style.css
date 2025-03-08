@@ -4,8 +4,6 @@
   width: 1280px;
   height: auto;
   margin: auto;
-
-  /* border: 3px solid #AA0000; */
 }
 
 /* -------------------------------- */
@@ -13,7 +11,6 @@
 
 #titleDiv {
   text-align: center;
-  /* border: 3px solid #73AD21; */
 }
 #titleDiv h1 {
   padding: 0px;
@@ -25,8 +22,6 @@
 
 #gridDiv {
   text-align: center;
-  /* border: 1px solid lightgray; */
-  /* border-radius: 10px; */
   padding: 4px;
 }
 
@@ -34,47 +29,45 @@
 /* Inputs */
 
 #inputsDiv {
-  /* display: inline-block; */
   text-align: center;
-  /* border: 1px solid lightgray; */
-  /* border-radius: 10px; */
-  /* padding-top: 2px; 
-  padding-bottom: 2px; */
-  /* width: 1276px; */
   margin:  auto;
 }
 
 #inputsInnerDiv {
   display: inline-flex;
   margin:  3px;
-  /* border: 1px solid lightgray; */
   padding: 2px;
 }
 
-/* #controlsDiv {
-  display: inline-flex;
-  border: 1px solid #ff9100;
-  margin-right: 20px;
+/* Buttons & Select */
+
+button, select, select:focus {
+  background-color: #EEEEEE;
+
+  border-width: 1px;
+  border-radius: 6px;
+  border-color: #666666;
+
+  cursor: pointer;
 }
-#patternsDiv {
-  display: inline-flex;
-  border: 1px solid #00b7ff;
-  margin-left: 20px;
-} */
 
+button:hover, select:hover {
+  background-color: #DDDDDD;
+}
 
+*:focus {
+  outline: none;
+}
 
+/* Text */
 
-/* .inputsDivs {
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
+button, select, #speedText, #speedValue {
+  font-size: 16px;
   text-align: center;
-} */
+  font-family: Arial, Helvetica, sans-serif;}
+
 
 .textBtn {
-  font-size: 16px;
-  cursor: pointer;
   width: 70px;
   height: 40px;
   margin-left: 5px;
@@ -85,19 +78,9 @@
   float: left;
   width: 40px;
   height: 40px;
-  cursor: pointer;
   margin-left: 5px;
   margin-right: 5px;
 }
-
-/* .sliders {
-  font-size: 16px;
-  cursor: pointer;
-  height: 40px;
-  margin-left: 5px;
-  margin-right: 5px;
-  padding: 0px;
-} */
 
 #sliderDiv {
   padding: 0px;
@@ -124,9 +107,9 @@
 }
 #speedSlider {
   width: 160px;
-  /* height: 10px; */
   margin-top: 0px;
   padding: 0px;
+  accent-color: #008800; 
 }
 
 
@@ -136,47 +119,19 @@
 
 
 select {
-  font-size: 16px;
-  cursor: pointer;
-  width: 120px;
+  width: 148px;
   height: 40px;
   margin-left: 5px;
   margin-right: 5px;
-  text-align: center;
 }
 
-
-  /*
-#cursorButton span {
-  float: left;
-  width: 2px;
-  height: 2px;
-} */
-
-/* #rotateRightBtn {
-  background: url(rotate-right.png) no-repeat;
-
+select option {
+  text-align: left;
 }
-#rotateRightBtn .span {
-  float: left;
-  width: 2px;
-  height: 2px;
-} */
 
-/* #rotateLeftBtn {
-  background: url(arrow_left_40x40.png) no-repeat;
+select optgroup {
+  text-align: left;
 }
-#rotateLeftBtn .span {
-  float: left;
-  width: 2px;
-  height: 2px;
-} */
-
-/* .img {
-  padding: 0px;
-  margin: 0px;
-  height: 40px;
-} */
 
 #rotateRightBtn {
   margin-right: 20px;
@@ -185,4 +140,3 @@ select {
 #plusBtn {
   margin-left: 20px;
 }
-
