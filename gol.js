@@ -154,8 +154,67 @@ speedSlider.oninput = function () {
   document.getElementById('speedValue').innerHTML = fps;
 }
 
+// Pattern Select
+
 var patternsSelect = document.getElementById('patternsSelect');
 patternsSelect.value = "default";
+
+patternsSelect.addEventListener('change', () => {
+  console.log('select: ' + patternsSelect.value);
+
+  mouseState = MouseState.showPattern;
+
+  switch (patternsSelect.value) {
+    case "default":
+      mouseState = MouseState.toggleMouseUp;
+      break;
+    case "sp1":
+      selectedPattern = Patterns.glider;
+      break;
+    case "sp2":
+      selectedPattern = Patterns.lwss;
+      break;
+    case "sp4":
+      selectedPattern = Patterns.hwss;
+      break;
+    case "puf1":
+      selectedPattern = Patterns.puffer1;
+      break;
+    case "puf2":
+      selectedPattern = Patterns.puffer2;
+      break;
+    case "osc1":
+      selectedPattern = Patterns.blinker;
+      break;
+    case "osc2":
+      selectedPattern = Patterns.pentadecathlon;
+      break;
+    case "osc2":
+      selectedPattern = Patterns.pentadecathlon_synthesis;
+      break;
+    case "osc3":
+      selectedPattern = Patterns.pulsar;
+      break;
+    case "osc4":
+      selectedPattern = Patterns.pre_pulsar;
+      break;
+    case "osc5":
+      selectedPattern = Patterns.galaxy;
+      break;
+    case "osc6":
+      selectedPattern = Patterns.clock;
+      break;
+    case "mtsl1":
+      selectedPattern = Patterns.acorn;
+      break;
+    case "mtsl2":
+      selectedPattern = Patterns.pi_heptomino;
+      break;
+    case "other1":
+      selectedPattern = Patterns.line;
+      break;
+  }
+});
 
 // Cursor Button
 
@@ -163,107 +222,6 @@ const cursorButton = document.getElementById('cursorButton');
 cursorButton.addEventListener('click', () => {
   mouseState = MouseState.toggleMouseUp;
   patternsSelect.value = "default";
-});
-
-// Pattern Select
-
-const sel0 = document.getElementById('sel0');
-sel0.addEventListener('click', () => {
-  mouseState = MouseState.toggleMouseUp;
-  patternsSelect.value = "default";
-});
-
-const sp1 = document.getElementById('sp1');
-sp1.addEventListener('click', () => {
-  mouseState = MouseState.showPattern;;
-  selectedPattern = Patterns.glider;
-});
-
-const sp2 = document.getElementById('sp2');
-sp2.addEventListener('click', () => {
-  mouseState = MouseState.showPattern;
-  selectedPattern = Patterns.lwss;
-});
-
-const sp4 = document.getElementById('sp4');
-sp4.addEventListener('click', () => {
-  mouseState = MouseState.showPattern;
-  selectedPattern = Patterns.hwss;
-});
-
-
-const puf1 = document.getElementById('puf1');
-puf1.addEventListener('click', () => {
-  mouseState = MouseState.showPattern;;
-  selectedPattern = Patterns.puffer1;
-});
-
-const puf2 = document.getElementById('puf2');
-puf2.addEventListener('click', () => {
-  mouseState = MouseState.showPattern;;
-  selectedPattern = Patterns.puffer2;
-});
-
-
-const osc1 = document.getElementById('osc1');
-osc1.addEventListener('click', () => {
-  mouseState = MouseState.showPattern;;
-  selectedPattern = Patterns.blinker;
-});
-
-const osc2 = document.getElementById('osc2');
-osc2.addEventListener('click', () => {
-  mouseState = MouseState.showPattern;;
-  selectedPattern = Patterns.pentadecathlon;
-});
-
-const osc3 = document.getElementById('osc3');
-osc3.addEventListener('click', () => {
-  mouseState = MouseState.showPattern;;
-  selectedPattern = Patterns.pentadecathlon_synthesis;
-});
-
-const osc4 = document.getElementById('osc4');
-osc4.addEventListener('click', () => {
-  mouseState = MouseState.showPattern;;
-  selectedPattern = Patterns.pulsar;
-});
-
-const osc5 = document.getElementById('osc5');
-osc5.addEventListener('click', () => {
-  mouseState = MouseState.showPattern;;
-  selectedPattern = Patterns.pre_pulsar;
-});
-
-const osc6 = document.getElementById('osc6');
-osc6.addEventListener('click', () => {
-  mouseState = MouseState.showPattern;;
-  selectedPattern = Patterns.galaxy;
-});
-
-const osc7 = document.getElementById('osc7');
-osc7.addEventListener('click', () => {
-  mouseState = MouseState.showPattern;;
-  selectedPattern = Patterns.clock;
-});
-
-
-const mtsl1 = document.getElementById('mtsl1');
-mtsl1.addEventListener('click', () => {
-  mouseState = MouseState.showPattern;;
-  selectedPattern = Patterns.acorn;
-});
-
-const mtsl2 = document.getElementById('mtsl2');
-mtsl2.addEventListener('click', () => {
-  mouseState = MouseState.showPattern;;
-  selectedPattern = Patterns.pi_heptomino;
-});
-
-const other1 = document.getElementById('other1');
-other1.addEventListener('click', () => {
-  mouseState = MouseState.showPattern;;
-  selectedPattern = Patterns.line;
 });
 
 // Rotation Buttons
