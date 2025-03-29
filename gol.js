@@ -189,19 +189,19 @@ patternsSelect.addEventListener('change', () => {
     case "osc2":
       selectedPattern = Patterns.pentadecathlon;
       break;
-    case "osc2":
+    case "osc3":
       selectedPattern = Patterns.pentadecathlon_synthesis;
       break;
-    case "osc3":
+    case "osc4":
       selectedPattern = Patterns.pulsar;
       break;
-    case "osc4":
+    case "osc5":
       selectedPattern = Patterns.pre_pulsar;
       break;
-    case "osc5":
+    case "osc6":
       selectedPattern = Patterns.galaxy;
       break;
-    case "osc6":
+    case "osc7":
       selectedPattern = Patterns.clock;
       break;
     case "mtsl1":
